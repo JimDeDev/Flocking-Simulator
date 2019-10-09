@@ -1,0 +1,8 @@
+# Editor files
+/.vscode
+
+# Compiled class file
+*.class
+
+# Output
+/bin
