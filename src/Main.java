@@ -14,13 +14,10 @@ public class Main {
             e.printStackTrace();
         }
 
-        Flock flock = new Flock(1);
-
-
         JFrame frame = new JFrame("Jaime's GUI App");
         frame.setResizable(false);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.getContentPane().add(new GUI(flock));
+        frame.getContentPane().add(new GUI());
         frame.pack();
         // position the frame in the middle of the screen
         Toolkit tk = Toolkit.getDefaultToolkit();
