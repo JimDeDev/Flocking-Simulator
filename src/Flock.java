@@ -9,14 +9,19 @@ public class Flock {
     private ArrayList<Boid> boids;
     private int numBoids;
     private int width, height;
+    private boolean alignment, cohesion, separation;
 
     public Flock(int width, int height) {
         this(0, width, height);
     }
 
     public Flock(int numBoids, int width, int height) {
-        this.setWorldSize(width, height);
+        this.alignment = false;
+        this.cohesion = false;
+        this.separation = false;
+
         this.boids = new ArrayList<>();
+        this.setWorldSize(width, height);
         this.numBoids = numBoids;
         this.addBoids(numBoids);
     }
@@ -28,7 +33,7 @@ public class Flock {
     }
 
     public void addBoid() {
-        boids.add(new Boid(width, height, boids));
+        boids.add(new Boid(this));
         numBoids++;
     }
 
@@ -48,4 +53,69 @@ public class Flock {
         this.width = width;
         this.height = height;
     }
+
+	public void killAll() {
+        this.boids.clear();
+        this.numBoids = 0;
+	}
+
+    /**
+     * @return the world width
+     */
+    public int getWidth() {
+        return width;
+    }
+
+    /**
+     * @return the world height
+     */
+    public int getHeight() {
+        return height;
+    }
+
+    /**
+     * @return the alignment
+     */
+    public boolean isAlignment() {
+        return alignment;
+    }
+
+    /**
+     * @param alignment the alignment to set
+     */
+    public void setAlignment(boolean alignment) {
+        this.alignment = alignment;
+    }
+
+    /**
+     * @return the cohesion
+     */
+    public boolean isCohesion() {
+        return cohesion;
+    }
+
+    /**
+     * @param cohesion the cohesion to set
+     */
+    public void setCohesion(boolean cohesion) {
+        this.cohesion = cohesion;
+    }
+
+    /**
+     * @return the separation
+     */
+    public boolean isSeparation() {
+        return separation;
+    }
+
+    /**
+     * @param separation the separation to set
+     */
+    public void setSeparation(boolean separation) {
+        this.separation = separation;
+    }
+
+	public ArrayList<Boid> getBoids() {
+		return this.boids;
+	}
 }

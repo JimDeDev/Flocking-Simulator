@@ -11,11 +11,13 @@ import static java.lang.Math.*;
  */
 public class Boid {
 
-    private int FOV = 60;
-    private Vector pos, acc, vel;
-    private int width, height;
-    private double maxSpeed = 3.0;
-    private ArrayList<Boid> boids;
+    private Random rand;
+
+    private double maxSpeed = 3;
+    private double maxForce = 0.3;
+    private int FOV = 50;
+    private Vector pos, vel;
+    private Flock flock;
     private static int size = 4;
     static final Path2D shape = new Path2D.Double();
 
@@ -25,15 +27,14 @@ public class Boid {
         shape.lineTo(size, size * 2);
     }
 
-    public Boid(int width, int height, ArrayList<Boid> boids) {
+    public Boid(Flock flock) {
+        this.rand = new Random();
 
-        this.boids = boids;
-        Random rand = new Random();
-        this.width = width;
-        this.height = height;
-        this.vel = new Vector();
-        this.acc = new Vector(rand.nextInt(4), rand.nextInt(4));
-        this.pos = new Vector(rand.nextInt(width), rand.nextInt(height));
+        this.flock = flock;
+        double velX = -1.0 +(1.0 - -1.0) * rand.nextDouble();
+        double velY = -1.0 +(1.0 - -1.0) * rand.nextDouble();
+        this.vel = new Vector(velX, velY);
+        this.pos = new Vector(rand.nextInt(flock.getWidth()), rand.nextInt(flock.getHeight()));
     }
 
     public void DrawBoid(Graphics2D g) {
@@ -49,10 +50,10 @@ public class Boid {
     }
 
     private void checkEdge() {
-        if(this.pos.getX() > width) this.pos.setX(0);
-        if(this.pos.getY() > height) this.pos.setY(0);
-        if(this.pos.getX() < 0) this.pos.setX(width);
-        if(this.pos.getY() < 0) this.pos.setY(height);
+        if(this.pos.getX() > flock.getWidth()) this.pos.setX(0);
+        if(this.pos.getY() > flock.getHeight()) this.pos.setY(0);
+        if(this.pos.getX() < 0) this.pos.setX(flock.getWidth());
+        if(this.pos.getY() < 0) this.pos.setY(flock.getHeight());
     }
 
     public void run() {
@@ -60,49 +61,93 @@ public class Boid {
         checkEdge();
     }
 
-    public Vector align() {
-        Vector avg = new Vector();
-        int count = 0;
-        for(Boid b : boids) {
-            if(b == this) continue;
-            double dist = Vector.dist(this.pos, b.pos);
-            if(dist < FOV) {
-                avg.add(b.vel);
-                count++;
-            }
-        }
-        if(count > 0) avg.div(count);
-        return avg;
-    }
-
     public Vector getPos() {
         return this.pos;
     }
 
     private void update() {
-        Vector align = Vector.sub(vel, align());
-        vel.add(align);
-        // vel.add(cohesion());
-        // vel.add(separation());
-        vel.add(acc);
-        vel.limit(maxSpeed);
-        pos.add(vel);
 
+        // Find all the boids that are within the field of view (FOV)
+        ArrayList<Boid> localBoids = findLocalBoids(flock.getBoids());
+
+        if(localBoids.size() > 0) {
+            if(flock.isAlignment()) this.vel.add(alignment(localBoids));
+            if(flock.isCohesion()) this.vel.add(cohesion(localBoids));
+            // if(flock.isSeparation()) this.vel.add(separation());
+        }
+
+        // Adding an acceleration multiplier
+        this.vel.mult(rand.nextDouble() + 0.8);
+        
+        this.vel.limit(maxSpeed);
+        this.pos.add(this.vel);
     }
 
-    private Vector cohesion() {
-        return null;
+    private ArrayList<Boid> findLocalBoids(ArrayList<Boid> boids) {
+
+        ArrayList<Boid> localBoids = new ArrayList<>();
+
+        for (Boid b : flock.getBoids()) {
+            if(b == this) continue;
+
+            double dist = Vector.dist(this.pos, b.getPos());
+            if (dist < FOV) {
+                localBoids.add(b);
+            }
+        }
+
+        return localBoids;
+    }
+
+    private Vector alignment(ArrayList<Boid> localBoids) {
+        Vector steering = new Vector();
+
+        for (Boid b : localBoids) {
+            steering.add(b.getVel());
+        }
+
+        steering.div(localBoids.size());
+        steering.limit(maxForce);
+        return steering;
+    }
+
+    private Vector cohesion(ArrayList<Boid> localBoids) {
+        Vector steering = new Vector();
+
+        for (Boid b : localBoids) {
+            steering.add(b.getPos());
+        }
+
+        steering.div(localBoids.size());
+        steering.limit(maxForce);
+        return steering;
+
+
+
+        Vector steering = new Vector();
+
+        int count = 0;
+        for (Boid b : flock.getBoids()) {
+            if(b == this) continue;
+
+            double dist = Vector.dist(this.pos, b.getPos());
+            if (dist < FOV) {
+                steering.add(b.getPos());
+                count++;
+            }
+        }
+
+        if(count > 0) {
+            steering.div(count);
+            steering.sub(this.pos);
+
+        }
+        steering.limit(maxForce);
+        return steering;
     }
 
     private Vector separation() {
         return null;
-    }
-
-    /**
-     * @return the acc
-     */
-    public Vector getAcc() {
-        return acc;
     }
 
     /**

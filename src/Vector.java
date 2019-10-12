@@ -58,7 +58,7 @@ public class Vector {
     double heading() {
         return atan2(y, x);
     }
- 
+
     static Vector sub(Vector v, Vector v2) {
         return new Vector(v.x - v2.x, v.y - v2.y);
     }
@@ -97,5 +97,10 @@ public class Vector {
      */
     public void setY(double y) {
         this.y = y;
+    }
+
+    @Override
+    public String toString() {
+        return "Vector [x=" + x + ", y=" + y + "]";
     }
 }

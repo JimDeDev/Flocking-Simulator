@@ -15,7 +15,7 @@ public class Main {
         }
 
         JFrame frame = new JFrame("Jaime's GUI App");
-        frame.setResizable(false);
+        // frame.setResizable(false);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().add(new GUI());
         frame.pack();

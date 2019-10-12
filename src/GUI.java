@@ -10,7 +10,8 @@ public class GUI extends JPanel implements ActionListener {
     private Flock flock;
 
     private Panel drawPanel;
-    private JButton addBoidBtn, add20BoidsBtm;
+    private JButton add20BoidsBtm, killBoidsBtn;
+    private JCheckBox alignment, cohesion, separation;
     private Timer timer;
 
     private int width = 800;
@@ -19,17 +20,31 @@ public class GUI extends JPanel implements ActionListener {
     public GUI() {
         super(new BorderLayout());
 
-        this.flock = new Flock(5, width, height);
+        this.flock = new Flock(width, height);
+        this.flock.addBoids(5);
 
         JPanel controlPanel = new JPanel();
 
-        addBoidBtn = new JButton("Add Boid");
-        addBoidBtn.addActionListener(this);
-        controlPanel.add(addBoidBtn);
-
-        add20BoidsBtm = new JButton("Add 20 Boids");
+        add20BoidsBtm = new JButton("Add Boids!");
         add20BoidsBtm.addActionListener(this);
         controlPanel.add(add20BoidsBtm);
+
+        killBoidsBtn = new JButton("Kill All Boids :(");
+        killBoidsBtn.addActionListener(this);
+        controlPanel.add(killBoidsBtn);
+
+        alignment = new JCheckBox("Alignment");
+        alignment.addActionListener(this);
+        controlPanel.add(alignment);
+
+        separation = new JCheckBox("Separation");
+        separation.addActionListener(this);
+        controlPanel.add(separation);
+
+        cohesion = new JCheckBox("Cohesion");
+        cohesion.addActionListener(this);
+        controlPanel.add(cohesion);
+
         controlPanel.setBorder(new TitledBorder("Controls"));
 
         this.add(controlPanel, BorderLayout.SOUTH);
@@ -46,19 +61,39 @@ public class GUI extends JPanel implements ActionListener {
 
         Object source = e.getSource();
 
-        if (source == addBoidBtn) {
-            System.out.println("addBoid pressed");
-            flock.addBoid();
+        if (source == add20BoidsBtm) {
+            SpinnerModel model = new SpinnerNumberModel(50, 1, 1000, 10);
+            JSpinner spinner = new JSpinner(model);
 
-        } else if (source == add20BoidsBtm) {
-            System.out.println("add 20 Boids pressed");
+            int result = JOptionPane.showConfirmDialog(this, spinner, "Add Boids!", JOptionPane.OK_CANCEL_OPTION);
 
-            flock.addBoids(20);
-        }
+            if(result == JOptionPane.OK_OPTION) {
+                flock.addBoids((int) spinner.getValue());
+            }
+        } else if (source == killBoidsBtn) {
+            flock.killAll();
+        } else if (source == alignment) {
+            flock.setAlignment(alignment.isSelected());
+        } else if (source == separation) {
+            flock.setSeparation(separation.isSelected());
+        } else if (source == cohesion) {
+            flock.setCohesion(cohesion.isSelected());
+        } 
+
+        updateWindowSize(); 
+
 
         flock.run();
 
         drawPanel.repaint();
+    }
+
+    private void updateWindowSize() {
+
+        this.width = drawPanel.getWidth();
+        this.height = drawPanel.getHeight();
+        this.flock.setWorldSize(width, height);
+
     }
 
     private class Panel extends JPanel {
