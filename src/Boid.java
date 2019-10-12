@@ -14,7 +14,7 @@ public class Boid {
     private Random rand;
 
     private double maxSpeed = 3;
-    private double maxForce = 0.3;
+    private double maxForce = 0.2;
     private int FOV = 50;
     private Vector pos, vel;
     private Flock flock;
@@ -49,40 +49,58 @@ public class Boid {
         g.setTransform(trans);
     }
 
-    private void checkEdge() {
-        if(this.pos.getX() > flock.getWidth()) this.pos.setX(0);
-        if(this.pos.getY() > flock.getHeight()) this.pos.setY(0);
-        if(this.pos.getX() < 0) this.pos.setX(flock.getWidth());
-        if(this.pos.getY() < 0) this.pos.setY(flock.getHeight());
-    }
-
+    /**
+     * This method will update the boids current position 
+     * by adding forces from the different rules
+     */
     public void run() {
-        update();
-        checkEdge();
-    }
-
-    public Vector getPos() {
-        return this.pos;
-    }
-
-    private void update() {
-
         // Find all the boids that are within the field of view (FOV)
         ArrayList<Boid> localBoids = findLocalBoids(flock.getBoids());
 
         if(localBoids.size() > 0) {
             if(flock.isAlignment()) this.vel.add(alignment(localBoids));
             if(flock.isCohesion()) this.vel.add(cohesion(localBoids));
-            // if(flock.isSeparation()) this.vel.add(separation());
+            if(flock.isSeparation()) this.vel.add(separation(localBoids));
         }
+        this.vel.add(avoidWalls());
 
         // Adding an acceleration multiplier
-        this.vel.mult(rand.nextDouble() + 0.8);
+        this.vel.mult(rand.nextDouble() + 0.6);
         
         this.vel.limit(maxSpeed);
-        this.pos.add(this.vel);
+        this.pos.add(this.vel);    
     }
 
+    public Vector getPos() {
+        return this.pos;
+    }
+
+    private Vector avoidWalls() {
+        Vector steering = new Vector();
+
+        // Avoid side walls
+        if(flock.getWidth() - this.pos.getX() < 50) {
+            steering.add(new Vector(-0.2, 0));
+        } else if(this.pos.getX() < 50) {
+            steering.add(new Vector(0.2, 0));
+        } 
+        // Avoid top and bottom walls
+        if(flock.getHeight() - this.pos.getY() < 50) {
+            steering.add(new Vector(0, -0.2));
+        } else if(this.pos.getY() < 50) {
+            steering.add(new Vector(0, 0.2));
+        } 
+
+        return steering;
+    }
+
+    /**
+     * This method will iterate through all of the boids and 
+     * add the boids that are within the field of view to 
+     * a separate list.
+     * @param boids
+     * @return An {@code ArrayList<Boid>} of local boids
+     */
     private ArrayList<Boid> findLocalBoids(ArrayList<Boid> boids) {
 
         ArrayList<Boid> localBoids = new ArrayList<>();
@@ -90,6 +108,7 @@ public class Boid {
         for (Boid b : flock.getBoids()) {
             if(b == this) continue;
 
+            // Get the distance between this boid and the other
             double dist = Vector.dist(this.pos, b.getPos());
             if (dist < FOV) {
                 localBoids.add(b);
@@ -119,36 +138,25 @@ public class Boid {
         }
 
         steering.div(localBoids.size());
+        steering.sub(this.pos);
         steering.limit(maxForce);
         return steering;
+    }
 
-
-
+    private Vector separation(ArrayList<Boid> localBoids) {
         Vector steering = new Vector();
 
-        int count = 0;
-        for (Boid b : flock.getBoids()) {
-            if(b == this) continue;
-
+        for (Boid b : localBoids) {
             double dist = Vector.dist(this.pos, b.getPos());
-            if (dist < FOV) {
-                steering.add(b.getPos());
-                count++;
-            }
+            Vector diff = Vector.sub(this.pos, b.getPos());
+            diff.div(dist);
+            steering.add(diff);
         }
 
-        if(count > 0) {
-            steering.div(count);
-            steering.sub(this.pos);
-
-        }
+        steering.div(localBoids.size());
         steering.limit(maxForce);
         return steering;
-    }
-
-    private Vector separation() {
-        return null;
-    }
+       }
 
     /**
      * @return the vel

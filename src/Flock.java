@@ -7,7 +7,6 @@ import java.awt.Graphics2D;
 public class Flock {
 
     private ArrayList<Boid> boids;
-    private int numBoids;
     private int width, height;
     private boolean alignment, cohesion, separation;
 
@@ -22,7 +21,6 @@ public class Flock {
 
         this.boids = new ArrayList<>();
         this.setWorldSize(width, height);
-        this.numBoids = numBoids;
         this.addBoids(numBoids);
     }
 
@@ -34,7 +32,6 @@ public class Flock {
 
     public void addBoid() {
         boids.add(new Boid(this));
-        numBoids++;
     }
 
     public void drawFlock(Graphics2D g) {
@@ -56,7 +53,6 @@ public class Flock {
 
 	public void killAll() {
         this.boids.clear();
-        this.numBoids = 0;
 	}
 
     /**

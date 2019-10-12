@@ -21,7 +21,7 @@ public class GUI extends JPanel implements ActionListener {
         super(new BorderLayout());
 
         this.flock = new Flock(width, height);
-        this.flock.addBoids(5);
+        this.flock.addBoids(200);
 
         JPanel controlPanel = new JPanel();
 
