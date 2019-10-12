@@ -3,6 +3,10 @@ import javax.swing.*;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 
+/**
+ * This flocking simulator can be run from here
+ * @author Jaime King
+ */
 public class Main { 
 
     public static void main(String[] args) {
@@ -14,7 +18,7 @@ public class Main {
             e.printStackTrace();
         }
 
-        JFrame frame = new JFrame("Jaime's GUI App");
+        JFrame frame = new JFrame("Jaime's Flocking Simulator");
         // frame.setResizable(false);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().add(new GUI());

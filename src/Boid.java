@@ -1,23 +1,25 @@
+import static java.lang.Math.PI;
+
+import java.awt.Color;
 import java.awt.Graphics2D;
-import java.util.ArrayList;
-import java.util.Random;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
-import java.awt.Color;
-import static java.lang.Math.*;
+import java.util.ArrayList;
+import java.util.Random;
 
 /**
- * Boid
+ * The {@code Boid} class contains methods that allow the 
+ * Boid to navigate using flock intelligence.
  */
 public class Boid {
 
     private Random rand;
-
-    private double maxSpeed = 3;
-    private double maxForce = 0.2;
-    private int FOV = 50;
+    private static double maxSpeed = 3;
+    private static double maxForce = 0.2;
+    private static int FOV = 50;
+    private Color color;
     private Vector pos, vel;
-    private Flock flock;
+    private static Flock flock;
     private static int size = 4;
     static final Path2D shape = new Path2D.Double();
 
@@ -29,21 +31,27 @@ public class Boid {
 
     public Boid(Flock flock) {
         this.rand = new Random();
-
         this.flock = flock;
+
+        // Getting a random vector to start the boid in a random direction
         double velX = -1.0 +(1.0 - -1.0) * rand.nextDouble();
         double velY = -1.0 +(1.0 - -1.0) * rand.nextDouble();
         this.vel = new Vector(velX, velY);
+
+        // Getting a random start position
         this.pos = new Vector(rand.nextInt(flock.getWidth()), rand.nextInt(flock.getHeight()));
     }
 
+    /**
+     * This method draws a boid
+     * @param g {@code Graphics2D}
+     */
     public void DrawBoid(Graphics2D g) {
 
         AffineTransform trans = g.getTransform();
-
         g.translate(pos.getX(), pos.getY());
         g.rotate(vel.heading() + PI / 2);
-        g.setColor(Color.white);
+        g.setColor(color);
         g.draw(shape);
         
         g.setTransform(trans);
@@ -57,17 +65,23 @@ public class Boid {
         // Find all the boids that are within the field of view (FOV)
         ArrayList<Boid> localBoids = findLocalBoids(flock.getBoids());
 
+        // If there are loca boids then check the rules
+        // The boid color is set to blue if it can't see any other boids
         if(localBoids.size() > 0) {
+            this.color = Color.WHITE;
             if(flock.isAlignment()) this.vel.add(alignment(localBoids));
             if(flock.isCohesion()) this.vel.add(cohesion(localBoids));
             if(flock.isSeparation()) this.vel.add(separation(localBoids));
-        }
+        } else this.color = Color.BLUE;
+        // Always avoid walls
         this.vel.add(avoidWalls());
 
         // Adding an acceleration multiplier
         this.vel.mult(rand.nextDouble() + 0.6);
         
+        // limit the boids speed
         this.vel.limit(maxSpeed);
+        // Move the boid based on the velocity
         this.pos.add(this.vel);    
     }
 
@@ -75,6 +89,10 @@ public class Boid {
         return this.pos;
     }
 
+    /**
+     * This method will steer the boid away from walls
+     * @return
+     */
     private Vector avoidWalls() {
         Vector steering = new Vector();
 
@@ -90,7 +108,7 @@ public class Boid {
         } else if(this.pos.getY() < 50) {
             steering.add(new Vector(0, 0.2));
         } 
-
+        steering.limit(maxForce);
         return steering;
     }
 
@@ -118,6 +136,12 @@ public class Boid {
         return localBoids;
     }
 
+    /**
+     * The alignment rule will exert a force on this boid
+     * in the average heading of the local boids
+     * @param localBoids
+     * @return the steering force vector
+     */
     private Vector alignment(ArrayList<Boid> localBoids) {
         Vector steering = new Vector();
 
@@ -130,6 +154,12 @@ public class Boid {
         return steering;
     }
 
+    /**
+     * The cohesion rule will steer this boid towards the average
+     * position of the local boids
+     * @param localBoids
+     * @return the steering force vector
+     */
     private Vector cohesion(ArrayList<Boid> localBoids) {
         Vector steering = new Vector();
 
@@ -143,6 +173,11 @@ public class Boid {
         return steering;
     }
 
+    /**
+     * This method will steer the boid to avoid the local boids
+     * @param localBoids
+     * @return the steering force vector
+     */
     private Vector separation(ArrayList<Boid> localBoids) {
         Vector steering = new Vector();
 
@@ -159,7 +194,7 @@ public class Boid {
        }
 
     /**
-     * @return the vel
+     * @return the velocity of the boid
      */
     public Vector getVel() {
         return vel;

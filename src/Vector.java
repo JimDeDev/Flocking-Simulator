@@ -1,5 +1,10 @@
 import static java.lang.Math.*;
 
+/**
+ * The Vector class had methods that can be used 
+ * to manipulate the vector
+ * Retrieved from {@link https://rosettacode.org/wiki/Boids/Java}
+ */
 public class Vector {
     double x, y;
  

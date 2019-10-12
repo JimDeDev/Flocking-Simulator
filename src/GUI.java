@@ -4,23 +4,21 @@ import javax.swing.border.TitledBorder;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.Graphics2D;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 
 public class GUI extends JPanel implements ActionListener {
 
-    private Flock flock;
-
+    public Flock flock;
     private Panel drawPanel;
     private JButton add20BoidsBtm, killBoidsBtn;
     private JCheckBox alignment, cohesion, separation;
     private Timer timer;
 
-    private int width = 800;
-    private int height = 600;
-
     public GUI() {
         super(new BorderLayout());
 
-        this.flock = new Flock(width, height);
+        this.flock = new Flock(800, 600);
         this.flock.addBoids(200);
 
         JPanel controlPanel = new JPanel();
@@ -65,8 +63,7 @@ public class GUI extends JPanel implements ActionListener {
             SpinnerModel model = new SpinnerNumberModel(50, 1, 1000, 10);
             JSpinner spinner = new JSpinner(model);
 
-            int result = JOptionPane.showConfirmDialog(this, spinner, "Add Boids!", JOptionPane.OK_CANCEL_OPTION);
-
+            int result = JOptionPane.showConfirmDialog(this, spinner, "How Many Boids do you want to add?", JOptionPane.OK_CANCEL_OPTION);
             if(result == JOptionPane.OK_OPTION) {
                 flock.addBoids((int) spinner.getValue());
             }
@@ -80,27 +77,31 @@ public class GUI extends JPanel implements ActionListener {
             flock.setCohesion(cohesion.isSelected());
         } 
 
-        updateWindowSize(); 
-
-
+        // Move the flock
         flock.run();
-
+        // Repaint the draw panel
         drawPanel.repaint();
     }
 
-    private void updateWindowSize() {
-
-        this.width = drawPanel.getWidth();
-        this.height = drawPanel.getHeight();
-        this.flock.setWorldSize(width, height);
-
-    }
-
+    /**
+     * The Panel class is where the boids roam
+     */
     private class Panel extends JPanel {
         public Panel(){
             super();
+            this.addComponentListener(new ComponentAdapter() {
+                /**
+                 * This method is used to change the world size 
+                 * so that the flock knows how large the window is
+                 */
+                @Override
+                public void componentResized(ComponentEvent e) {
+                    flock.setWorldSize(drawPanel.getWidth(), drawPanel.getHeight());
+                }
+              });
+
             super.setBackground(Color.DARK_GRAY);
-            super.setPreferredSize(new Dimension(width, height));      
+            super.setPreferredSize(new Dimension(800, 600));      
         }
         //draws the panel
         public void paintComponent(Graphics g1) {
@@ -109,5 +110,8 @@ public class GUI extends JPanel implements ActionListener {
 
             flock.drawFlock(g);
         }
+
+
+
     }
 }
