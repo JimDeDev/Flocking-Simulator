@@ -9,9 +9,9 @@ import java.awt.event.ComponentEvent;
 
 public class GUI extends JPanel implements ActionListener {
 
-    public Flock flock;
+    private Flock flock;
     private Panel drawPanel;
-    private JButton add20BoidsBtm, killBoidsBtn;
+    private JButton addBoidsBtm, killBoidsBtn;
     private JCheckBox alignment, cohesion, separation;
     private Timer timer;
 
@@ -23,9 +23,9 @@ public class GUI extends JPanel implements ActionListener {
 
         JPanel controlPanel = new JPanel();
 
-        add20BoidsBtm = new JButton("Add Boids!");
-        add20BoidsBtm.addActionListener(this);
-        controlPanel.add(add20BoidsBtm);
+        addBoidsBtm = new JButton("Add Boids!");
+        addBoidsBtm.addActionListener(this);
+        controlPanel.add(addBoidsBtm);
 
         killBoidsBtn = new JButton("Kill All Boids :(");
         killBoidsBtn.addActionListener(this);
@@ -59,7 +59,7 @@ public class GUI extends JPanel implements ActionListener {
 
         Object source = e.getSource();
 
-        if (source == add20BoidsBtm) {
+        if (source == addBoidsBtm) {
             SpinnerModel model = new SpinnerNumberModel(50, 1, 1000, 10);
             JSpinner spinner = new JSpinner(model);
 
@@ -110,8 +110,5 @@ public class GUI extends JPanel implements ActionListener {
 
             flock.drawFlock(g);
         }
-
-
-
     }
 }

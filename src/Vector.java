@@ -6,45 +6,45 @@ import static java.lang.Math.*;
  * Retrieved from {@link https://rosettacode.org/wiki/Boids/Java}
  */
 public class Vector {
-    double x, y;
+    private double x, y;
  
-    Vector() {
+    public Vector() {
     }
  
-    Vector(double x, double y) {
+    public Vector(double x, double y) {
         this.x = x;
         this.y = y;
     }
  
-    void add(Vector v) {
+    public void add(Vector v) {
         x += v.x;
         y += v.y;
     }
  
-    void sub(Vector v) {
+    public void sub(Vector v) {
         x -= v.x;
         y -= v.y;
     }
  
-    void div(double val) {
+    public void div(double val) {
         x /= val;
         y /= val;
     }
  
-    void mult(double val) {
+    public void mult(double val) {
         x *= val;
         y *= val;
     }
  
-    double mag() {
+    public double mag() {
         return sqrt(pow(x, 2) + pow(y, 2));
     }
  
-    double dot(Vector v) {
+    public double dot(Vector v) {
         return x * v.x + y * v.y;
     }
  
-    void normalize() {
+    public void normalize() {
         double mag = mag();
         if (mag != 0) {
             x /= mag;
@@ -52,7 +52,7 @@ public class Vector {
         }
     }
  
-    void limit(double lim) {
+    public void limit(double lim) {
         double mag = mag();
         if (mag != 0 && mag > lim) {
             x *= lim / mag;
@@ -60,19 +60,19 @@ public class Vector {
         }
     }
  
-    double heading() {
+    public double heading() {
         return atan2(y, x);
     }
 
-    static Vector sub(Vector v, Vector v2) {
+    public static Vector sub(Vector v, Vector v2) {
         return new Vector(v.x - v2.x, v.y - v2.y);
     }
  
-    static double dist(Vector v, Vector v2) {
+    public static double dist(Vector v, Vector v2) {
         return sqrt(pow(v.x - v2.x, 2) + pow(v.y - v2.y, 2));
     }
  
-    static double angleBetween(Vector v, Vector v2) {
+    public static double angleBetween(Vector v, Vector v2) {
         return acos(v.dot(v2) / (v.mag() * v2.mag()));
     }
 

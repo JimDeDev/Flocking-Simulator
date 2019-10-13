@@ -17,11 +17,11 @@ public class Boid {
     private static double maxSpeed = 3;
     private static double maxForce = 0.2;
     private static int FOV = 50;
+    private static int size = 4;
     private Color color;
     private Vector pos, vel;
     private static Flock flock;
-    private static int size = 4;
-    static final Path2D shape = new Path2D.Double();
+    private static final Path2D shape = new Path2D.Double();
 
     static {
         shape.moveTo(-size, size * 2);
